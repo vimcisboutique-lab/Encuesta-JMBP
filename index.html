@@ -239,7 +239,7 @@ if (SCRIPT_URL === "https://script.google.com/macros/s/AKfycbwz-VmI9xPOTjYyemEnh
 // ── CARGAR VOTOS DESDE SERVIDOR ──────────────────────
 function loadVotes() {
   if (SCRIPT_URL === "https://script.google.com/macros/s/AKfycbwz-VmI9xPOTjYyemEnhUgkQ3XXjS7MrDasAAwWPKcB_djfy-DmksLvxIFsEL3vfn1vMA/exec") {
-    document.getElementById("liveTxt").textContent = "Configura el Apps Script para ver votos en vivo";
+    document.getElementById("liveTxt").textContent = "";
     return;
   }
   fetch(SCRIPT_URL + "?t=" + Date.now())
@@ -296,31 +296,25 @@ function castVote() {
   btn.innerHTML = '<span class="spinner"></span>';
   btn.disabled  = true;
 
-  var payload = {
-    option: LABELS[sel],
-    device: /Mobi|Android/i.test(navigator.userAgent) ? "Móvil" : "Escritorio",
-    ref:    navigator.language || ""
-  };
+  var opcion = LABELS[sel];
+  var device = /Mobi|Android/i.test(navigator.userAgent) ? "Móvil" : "Escritorio";
+  var lang   = navigator.language || "";
 
-  if (SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbwz-VmI9xPOTjYyemEnhUgkQ3XXjS7MrDasAAwWPKcB_djfy-DmksLvxIFsEL3vfn1vMA/exec") {
-    fetch(SCRIPT_URL, {
-      method:  "POST",
-      mode:    "no-cors",
-      headers: {"Content-Type":"application/json"},
-      body:    JSON.stringify(payload)
-    }).finally(function(){
+  var voteUrl = SCRIPT_URL
+    + "?action=vote"
+    + "&option=" + encodeURIComponent(opcion)
+    + "&device=" + encodeURIComponent(device)
+    + "&lang="   + encodeURIComponent(lang)
+    + "&t="      + Date.now();
+
+  fetch(voteUrl)
+    .then(function(r){ return r.json(); })
+    .catch(function(){ return { status: "ok" }; })
+    .finally(function(){
       btn.textContent = "Votado";
       showResults();
-      setTimeout(loadVotes, 1500);
+      setTimeout(loadVotes, 2000);
     });
-  } else {
-    // Modo demo sin servidor
-    serverVotes[sel]++;
-    var tot = serverVotes[0]+serverVotes[1]+serverVotes[2];
-    renderVotes(tot);
-    btn.textContent = "Votado";
-    showResults();
-  }
 }
 
 // ── RESET ─────────────────────────────────────────────
