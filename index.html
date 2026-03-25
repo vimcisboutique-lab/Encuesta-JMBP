@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f1f14">
+<meta property="og:title" content="Encuesta — José Manuel Benavent Perucho">
+<meta property="og:description" content="¿Cuál es tu mayor desafío como líder? Vota y dime qué quieres en el próximo evento.">
+<title>Encuesta Liderazgo — JMBP</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --green: #1D9E75; --green-dark: #0F6E56; --green-deep: #085041;
+    --green-light: #E1F5EE; --green-pale: #f0faf6;
+    --bg: #0d1f16; --bg2: #132b1c; --bg3: #1a3525;
+    --card: #ffffff; --text: #111; --text2: #444; --text3: #777;
+    --border: rgba(0,0,0,0.10); --radius: 16px; --radius-sm: 10px;
+  }
+  html, body { min-height: 100vh; background: var(--bg); font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+  body { display: flex; flex-direction: column; align-items: center; padding: 0; }
+
+  /* HERO */
+  .hero { width: 100%; background: linear-gradient(160deg,#0d1f16 0%,#1a3a25 60%,#0f2e1e 100%); padding: 48px 24px 36px; display: flex; flex-direction: column; align-items: center; text-align: center; position: relative; overflow: hidden; }
+  .hero::before { content:''; position:absolute; top:-60px; right:-60px; width:220px; height:220px; border-radius:50%; background:radial-gradient(circle,rgba(29,158,117,.18) 0%,transparent 70%); }
+  .hero::after  { content:''; position:absolute; bottom:-40px; left:-40px; width:160px; height:160px; border-radius:50%; background:radial-gradient(circle,rgba(29,158,117,.12) 0%,transparent 70%); }
+  .avatar-ring  { width:72px; height:72px; border-radius:50%; border:2px solid rgba(29,158,117,.5); display:flex; align-items:center; justify-content:center; margin-bottom:16px; background:linear-gradient(135deg,#1a3525,#0f2e1e); position:relative; z-index:1; }
+  .avatar-inner { width:60px; height:60px; border-radius:50%; background:var(--green); display:flex; align-items:center; justify-content:center; font-size:13px; font-weight:500; color:#fff; letter-spacing:.5px; }
+  .hero-name    { font-family: Georgia, 'Times New Roman', serif; font-size:22px; color:#e8f7ed; margin-bottom:4px; position:relative; z-index:1; line-height:1.3; }
+  .hero-sub     { font-size:13px; color:rgba(158,207,174,.8); margin-bottom:20px; position:relative; z-index:1; letter-spacing:.3px; }
+  .hero-intro   { font-size:14px; color:rgba(188,230,208,.75); line-height:1.65; max-width:340px; margin-bottom:14px; position:relative; z-index:1; }
+  .hero-question{ font-size:16px; font-weight:500; color:#e8f7ed; line-height:1.55; max-width:340px; position:relative; z-index:1; }
+
+  /* POLL CARD */
+  .poll-card { width:100%; max-width:520px; background:var(--card); border-radius:var(--radius) var(--radius) 0 0; padding:24px 20px 32px; flex:1; min-height:60vh; }
+  .poll-label { font-size:11px; font-weight:500; color:var(--green); letter-spacing:1.2px; text-transform:uppercase; margin-bottom:16px; }
+
+  /* LIVE BADGE */
+  .live-bar { display:flex; align-items:center; gap:8px; margin-bottom:18px; }
+  .live-dot { width:8px; height:8px; border-radius:50%; background:var(--green); animation: pulse 1.8s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.3)} }
+  .live-txt { font-size:12px; color:var(--text3); }
+
+  /* OPTIONS */
+  .option { border:1.5px solid var(--border); border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:10px; cursor:pointer; transition:border-color .2s,background .2s; background:#fff; user-select:none; -webkit-tap-highlight-color:transparent; }
+  .option:active { background:var(--green-pale); }
+  .option.selected { border-color:var(--green); background:var(--green-pale); }
+  .opt-top { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+  .radio { width:20px; height:20px; border-radius:50%; border:2px solid #ccc; flex-shrink:0; display:flex; align-items:center; justify-content:center; transition:all .2s; background:#fff; }
+  .option.selected .radio { border-color:var(--green); background:var(--green); }
+  .radio-dot { width:8px; height:8px; border-radius:50%; background:#fff; opacity:0; transition:opacity .2s; }
+  .option.selected .radio-dot { opacity:1; }
+  .opt-label { font-size:15px; color:var(--text); line-height:1.4; flex:1; }
+  .opt-stats { display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .opt-count { font-size:12px; color:var(--text3); opacity:0; transition:opacity .3s; }
+  .opt-pct   { font-size:13px; font-weight:500; color:var(--green); opacity:0; transition:opacity .3s; }
+  .bar-track { height:5px; border-radius:4px; background:#e8f0ec; overflow:hidden; }
+  .bar-fill  { height:100%; border-radius:4px; background:var(--green); width:0%; transition:width .55s cubic-bezier(.4,0,.2,1); }
+  .show-stats .opt-count, .show-stats .opt-pct { opacity:1; }
+
+  /* FOOTER */
+  .poll-footer { margin-top:20px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+  .total-votes { font-size:13px; color:var(--text3); }
+  .btn-group   { display:flex; gap:8px; align-items:center; flex-wrap:wrap; }
+  .btn-vote    { background:var(--green); color:#fff; border:none; border-radius:var(--radius-sm); padding:11px 24px; font-size:14px; font-weight:500; cursor:pointer; transition:background .2s,transform .1s; font-family:inherit; }
+  .btn-vote:active { transform:scale(.97); background:var(--green-dark); }
+  .btn-vote:disabled { background:#d4d4d4; color:#aaa; cursor:default; transform:none; }
+  .btn-export  { background:none; border:1.5px solid var(--green); border-radius:var(--radius-sm); padding:10px 16px; font-size:13px; font-weight:500; color:var(--green); cursor:pointer; transition:background .2s; font-family:inherit; display:flex; align-items:center; gap:6px; }
+  .btn-export:active { background:var(--green-light); }
+  .btn-reset   { background:none; border:none; font-size:12px; color:var(--text3); cursor:pointer; text-decoration:underline; display:none; font-family:inherit; }
+  .thanks-msg  { font-size:13px; color:var(--green); font-weight:500; display:none; margin-top:4px; width:100%; }
+
+  /* MODAL */
+  .modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.55); z-index:200; align-items:center; justify-content:center; padding:24px; }
+  .modal-overlay.open { display:flex; }
+  .modal-box { background:#fff; border-radius:var(--radius); padding:28px 24px; width:100%; max-width:340px; box-shadow:0 20px 60px rgba(0,0,0,.25); animation:popIn .2s ease; }
+  @keyframes popIn { from{transform:scale(.92);opacity:0} to{transform:scale(1);opacity:1} }
+  .modal-icon { width:44px; height:44px; border-radius:50%; background:var(--green-light); display:flex; align-items:center; justify-content:center; margin-bottom:14px; }
+  .modal-box h3 { font-size:16px; font-weight:500; color:var(--text); margin-bottom:6px; }
+  .modal-box p  { font-size:13px; color:var(--text2); line-height:1.55; margin-bottom:18px; }
+  .modal-input  { width:100%; padding:12px 14px; border:1.5px solid #ddd; border-radius:var(--radius-sm); font-size:15px; color:var(--text); background:#fafafa; outline:none; transition:border-color .2s; margin-bottom:6px; -webkit-appearance:none; font-family:inherit; }
+  .modal-input:focus { border-color:var(--green); background:#fff; }
+  .modal-input.error { border-color:#e24b4a; }
+  .modal-err  { font-size:12px; color:#e24b4a; margin-bottom:14px; min-height:18px; display:none; }
+  .modal-err.show { display:block; }
+  .modal-btns { display:flex; gap:8px; }
+  .btn-cancel  { flex:1; background:#f2f2f2; border:none; border-radius:var(--radius-sm); padding:12px; font-size:14px; color:var(--text2); cursor:pointer; font-family:inherit; }
+  .btn-confirm { flex:2; background:var(--green); border:none; border-radius:var(--radius-sm); padding:12px; font-size:14px; font-weight:500; color:#fff; cursor:pointer; font-family:inherit; }
+  .btn-confirm:active { background:var(--green-dark); }
+
+  /* SPINNER */
+  .spinner { display:inline-block; width:16px; height:16px; border:2px solid rgba(255,255,255,.3); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite; }
+  @keyframes spin { to{transform:rotate(360deg)} }
+
+  /* BRAND FOOTER */
+  .brand-footer { width:100%; text-align:center; padding:20px 24px 32px; background:var(--card); }
+  .brand-footer span { font-size:11px; color:#bbb; letter-spacing:.5px; }
+
+  /* SETUP BANNER */
+  .setup-banner { background:#fff3cd; border:1px solid #ffc107; border-radius:var(--radius-sm); padding:14px 16px; margin-bottom:16px; font-size:13px; color:#856404; line-height:1.5; display:none; }
+  .setup-banner.show { display:block; }
+  .setup-banner strong { display:block; margin-bottom:4px; font-size:14px; }
+
+  @media(max-width:400px) {
+    .hero { padding:40px 20px 32px; }
+    .hero-name { font-size:20px; }
+    .poll-card { padding:20px 16px 28px; }
+    .opt-label { font-size:14px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="avatar-ring">
+    <div class="avatar-inner">JMBP</div>
+  </div>
+  <div class="hero-name">José Manuel Benavent Perucho</div>
+  <div class="hero-sub">Liderazgo Consciente &amp; Transformación</div>
+  <p class="hero-intro">Antes de hablarte de lo que viene, necesito saber dónde estás parado hoy como líder.</p>
+  <p class="hero-question">¿Cuál de estos temas es tu mayor desafío ahora mismo y te gustaría tratar en nuestro próximo evento?</p>
+</div>
+
+<div class="poll-card" id="pollCard">
+
+  <div class="setup-banner" id="setupBanner" style="display:none!important">
+    <strong>⚠️ Configuración pendiente</strong>
+    Reemplaza <code>https://script.google.com/macros/s/AKfycbwz-VmI9xPOTjYyemEnhUgkQ3XXjS7MrDasAAwWPKcB_djfy-DmksLvxIFsEL3vfn1vMA/exec</code> en el archivo HTML con la URL de tu Google Apps Script para activar el guardado de votos.
+  </div>
+
+  <div class="poll-label">Selecciona una opción</div>
+
+  <div class="live-bar">
+    <div class="live-dot"></div>
+    <span class="live-txt" id="liveTxt">Cargando votos en tiempo real...</span>
+  </div>
+
+  <div class="option" id="opt0" onclick="selectOpt(0)">
+    <div class="opt-top">
+      <div class="radio"><div class="radio-dot"></div></div>
+      <span class="opt-label">Liderando desde la Inteligencia Artificial</span>
+    </div>
+    <div class="opt-stats">
+      <span class="opt-count" id="c0">0 personas</span>
+      <span class="opt-pct"   id="p0">0%</span>
+    </div>
+    <div class="bar-track"><div class="bar-fill" id="b0"></div></div>
+  </div>
+
+  <div class="option" id="opt1" onclick="selectOpt(1)">
+    <div class="opt-top">
+      <div class="radio"><div class="radio-dot"></div></div>
+      <span class="opt-label">Los Bloqueos Emocionales del Líder</span>
+    </div>
+    <div class="opt-stats">
+      <span class="opt-count" id="c1">0 personas</span>
+      <span class="opt-pct"   id="p1">0%</span>
+    </div>
+    <div class="bar-track"><div class="bar-fill" id="b1"></div></div>
+  </div>
+
+  <div class="option" id="opt2" onclick="selectOpt(2)">
+    <div class="opt-top">
+      <div class="radio"><div class="radio-dot"></div></div>
+      <span class="opt-label">Liderando con Inteligencia Intuitiva</span>
+    </div>
+    <div class="opt-stats">
+      <span class="opt-count" id="c2">0 personas</span>
+      <span class="opt-pct"   id="p2">0%</span>
+    </div>
+    <div class="bar-track"><div class="bar-fill" id="b2"></div></div>
+  </div>
+
+  <div class="poll-footer">
+    <span class="total-votes" id="totalLbl">— votos</span>
+    <div class="btn-group">
+      <button class="btn-reset"   id="resetBtn"  onclick="resetAll()"  >Reiniciar</button>
+      <button class="btn-export"  onclick="openModal()">
+        <svg width="15" height="15" viewBox="0 0 15 15" fill="none"><rect x=".5" y=".5" width="14" height="14" rx="2" fill="#1D9E75" fill-opacity=".15"/><path d="M3.5 4.5l2.3 2.8-2.3 3.2H5l1.5-2 1.5 2H9.5l-2.4-3.2L9.5 4.5H8l-1.5 1.9L5 4.5H3.5z" fill="#1D9E75"/><path d="M10.5 4.5v6" stroke="#1D9E75" stroke-width="1.2" stroke-linecap="round"/></svg>
+        Exportar Excel
+      </button>
+      <button class="btn-vote" id="voteBtn" disabled onclick="castVote()">Votar</button>
+    </div>
+    <div class="thanks-msg" id="thanksMsg">¡Gracias por votar! Tu opinión define el evento.</div>
+  </div>
+</div>
+
+<div class="brand-footer">
+  <span>jmbenaventperucho.com &nbsp;·&nbsp; Liderazgo Consciente</span>
+</div>
+
+<!-- MODAL CONTRASEÑA -->
+<div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+  <div class="modal-box">
+    <div class="modal-icon">
+      <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+        <rect x="4" y="10" width="14" height="10" rx="2" fill="#1D9E75" fill-opacity=".2"/>
+        <rect x="4" y="10" width="14" height="10" rx="2" stroke="#1D9E75" stroke-width="1.5"/>
+        <path d="M8 10V7.5a3 3 0 016 0V10" stroke="#1D9E75" stroke-width="1.5" stroke-linecap="round"/>
+        <circle cx="11" cy="15" r="1.5" fill="#1D9E75"/>
+      </svg>
+    </div>
+    <h3>Acceso de administrador</h3>
+    <p>Esta función es exclusiva del organizador. Ingresa la palabra clave para descargar los resultados en Excel.</p>
+    <input type="password" class="modal-input" id="pwdInput" placeholder="Palabra clave..."
+           autocomplete="off" onkeydown="if(event.key==='Enter')confirmExport()"/>
+    <div class="modal-err" id="modalErr">Palabra clave incorrecta. Acceso denegado.</div>
+    <div class="modal-btns">
+      <button class="btn-cancel"  onclick="closeModal()">Cancelar</button>
+      <button class="btn-confirm" id="confirmBtn" onclick="confirmExport()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<!-- SheetJS para Excel real -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+
+<script>
+// ══════════════════════════════════════════════════════
+// ★ REEMPLAZA ESTA URL CON LA TUYA DE APPS SCRIPT ★
+// ══════════════════════════════════════════════════════
+var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwz-VmI9xPOTjYyemEnhUgkQ3XXjS7MrDasAAwWPKcB_djfy-DmksLvxIFsEL3vfn1vMA/exec";
+// ══════════════════════════════════════════════════════
+
+var LABELS = [
+  "Liderando desde la Inteligencia Artificial",
+  "Los Bloqueos Emocionales del Líder",
+  "Liderando con Inteligencia Intuitiva"
+];
+
+var serverVotes = [0,0,0];
+var sel   = -1;
+var voted = localStorage.getItem("jmbp_voted") === "1";
+
+// Detectar si falta configuración
+if (SCRIPT_URL === "https://script.google.com/macros/s/AKfycbwz-VmI9xPOTjYyemEnhUgkQ3XXjS7MrDasAAwWPKcB_djfy-DmksLvxIFsEL3vfn1vMA/exec") {
+  document.getElementById("setupBanner").classList.add("show");
+}
+
+// ── CARGAR VOTOS DESDE SERVIDOR ──────────────────────
+function loadVotes() {
+  if (SCRIPT_URL === "https://script.google.com/macros/s/AKfycbwz-VmI9xPOTjYyemEnhUgkQ3XXjS7MrDasAAwWPKcB_djfy-DmksLvxIFsEL3vfn1vMA/exec") {
+    document.getElementById("liveTxt").textContent = "Configura el Apps Script para ver votos en vivo";
+    return;
+  }
+  fetch(SCRIPT_URL + "?t=" + Date.now())
+    .then(function(r){ return r.json(); })
+    .then(function(d){
+      serverVotes = [d.v0||0, d.v1||0, d.v2||0];
+      renderVotes(d.total||0);
+      if (voted) showResults();
+    })
+    .catch(function(){
+      document.getElementById("liveTxt").textContent = "Error al conectar — revisa la URL del script";
+    });
+}
+
+function renderVotes(total) {
+  document.getElementById("totalLbl").textContent = total + (total===1?" voto":" votos");
+  document.getElementById("liveTxt").textContent  = total + " personas han votado";
+  for (var i=0;i<3;i++){
+    var pct = total>0 ? Math.round(serverVotes[i]/total*100) : 0;
+    document.getElementById("b"+i).style.width = pct+"%";
+    document.getElementById("p"+i).textContent = pct+"%";
+    document.getElementById("c"+i).textContent = serverVotes[i]+(serverVotes[i]===1?" persona":" personas");
+  }
+}
+
+function showResults() {
+  document.getElementById("pollCard").classList.add("show-stats");
+  document.getElementById("voteBtn").disabled = true;
+  document.getElementById("thanksMsg").style.display = "block";
+  document.getElementById("resetBtn").style.display  = "inline";
+}
+
+// Refrescar cada 15 segundos
+loadVotes();
+setInterval(loadVotes, 15000);
+
+// ── SELECCIONAR OPCIÓN ────────────────────────────────
+function selectOpt(i) {
+  if (voted) return;
+  sel = i;
+  for (var j=0;j<3;j++) {
+    document.getElementById("opt"+j).classList.toggle("selected", j===i);
+  }
+  document.getElementById("voteBtn").disabled = false;
+}
+
+// ── EMITIR VOTO ───────────────────────────────────────
+function castVote() {
+  if (sel<0 || voted) return;
+  voted = true;
+  localStorage.setItem("jmbp_voted","1");
+
+  var btn = document.getElementById("voteBtn");
+  btn.innerHTML = '<span class="spinner"></span>';
+  btn.disabled  = true;
+
+  var payload = {
+    option: LABELS[sel],
+    device: /Mobi|Android/i.test(navigator.userAgent) ? "Móvil" : "Escritorio",
+    ref:    navigator.language || ""
+  };
+
+  if (SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbwz-VmI9xPOTjYyemEnhUgkQ3XXjS7MrDasAAwWPKcB_djfy-DmksLvxIFsEL3vfn1vMA/exec") {
+    fetch(SCRIPT_URL, {
+      method:  "POST",
+      mode:    "no-cors",
+      headers: {"Content-Type":"application/json"},
+      body:    JSON.stringify(payload)
+    }).finally(function(){
+      btn.textContent = "Votado";
+      showResults();
+      setTimeout(loadVotes, 1500);
+    });
+  } else {
+    // Modo demo sin servidor
+    serverVotes[sel]++;
+    var tot = serverVotes[0]+serverVotes[1]+serverVotes[2];
+    renderVotes(tot);
+    btn.textContent = "Votado";
+    showResults();
+  }
+}
+
+// ── RESET ─────────────────────────────────────────────
+function resetAll() {
+  voted = false;
+  localStorage.removeItem("jmbp_voted");
+  sel   = -1;
+  document.getElementById("pollCard").classList.remove("show-stats");
+  for (var i=0;i<3;i++) {
+    document.getElementById("opt"+i).classList.remove("selected");
+  }
+  document.getElementById("voteBtn").textContent = "Votar";
+  document.getElementById("voteBtn").disabled    = true;
+  document.getElementById("thanksMsg").style.display = "none";
+  document.getElementById("resetBtn").style.display  = "none";
+  loadVotes();
+}
+
+// ── MODAL ─────────────────────────────────────────────
+function openModal() {
+  document.getElementById("pwdInput").value = "";
+  document.getElementById("pwdInput").classList.remove("error");
+  document.getElementById("modalErr").classList.remove("show");
+  document.getElementById("modalOverlay").classList.add("open");
+  setTimeout(function(){ document.getElementById("pwdInput").focus(); }, 200);
+}
+function closeModal() {
+  document.getElementById("modalOverlay").classList.remove("open");
+}
+function handleOverlayClick(e) {
+  if (e.target===document.getElementById("modalOverlay")) closeModal();
+}
+
+function confirmExport() {
+  var pwd = document.getElementById("pwdInput").value.trim().toUpperCase();
+  if (pwd !== "EUREKA") {
+    document.getElementById("pwdInput").classList.add("error");
+    document.getElementById("modalErr").classList.add("show");
+    document.getElementById("pwdInput").value = "";
+    document.getElementById("pwdInput").focus();
+    return;
+  }
+  closeModal();
+
+  var btn = document.getElementById("confirmBtn");
+  btn.innerHTML = '<span class="spinner"></span> Generando...';
+
+  // Si hay servidor, obtener datos frescos; si no, usar los en memoria
+  if (SCRIPT_URL !== "https://script.google.com/macros/s/AKfycbwz-VmI9xPOTjYyemEnhUgkQ3XXjS7MrDasAAwWPKcB_djfy-DmksLvxIFsEL3vfn1vMA/exec") {
+    fetch(SCRIPT_URL + "?t=" + Date.now())
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        serverVotes = [d.v0||0, d.v1||0, d.v2||0];
+        exportXLSX();
+      })
+      .catch(function(){ exportXLSX(); })
+      .finally(function(){ btn.textContent = "Confirmar"; });
+  } else {
+    exportXLSX();
+    btn.textContent = "Confirmar";
+  }
+}
+
+// ── EXPORT XLSX REAL ──────────────────────────────────
+function exportXLSX() {
+  var total = serverVotes[0]+serverVotes[1]+serverVotes[2];
+  var now   = new Date().toLocaleString("es-ES");
+  var wb    = XLSX.utils.book_new();
+
+  // ── Hoja 1: Resumen General ──
+  var aoa1 = [
+    ["ENCUESTA DE LIDERAZGO — RESULTADOS"],
+    [],
+    ["Organización:",  "José Manuel Benavent Perucho"],
+    ["Subtítulo:",     "Liderazgo Consciente & Transformación"],
+    ["Pregunta:",      "¿Cuál de estos temas es tu mayor desafío ahora mismo y te gustaría tratar en nuestro próximo evento?"],
+    ["Fecha export:",  now],
+    ["Total votos:",   total],
+    [],
+    ["#","Opción / Tema","Votos","Porcentaje","Gráfico aproximado"]
+  ];
+  for (var i=0;i<3;i++){
+    var pct  = total>0 ? Math.round(serverVotes[i]/total*100) : 0;
+    var bars = "█".repeat(Math.round(pct/5)) + "░".repeat(20-Math.round(pct/5));
+    aoa1.push([(i+1), LABELS[i], serverVotes[i], pct+"%", bars]);
+  }
+  aoa1.push([]);
+  aoa1.push(["Generado por la herramienta de encuesta JMBP","","","","Confidencial — uso interno"]);
+
+  var ws1 = XLSX.utils.aoa_to_sheet(aoa1);
+  ws1["!cols"] = [{wch:4},{wch:52},{wch:10},{wch:14},{wch:24}];
+  // Estilo encabezado (SheetJS CE no aplica estilos, pero estructura queda limpia)
+  ws1["!merges"] = [{s:{r:0,c:0},e:{r:0,c:4}}];
+  XLSX.utils.book_append_sheet(wb, ws1, "Resumen General");
+
+  // ── Hoja 2: Detalle por Opción ──
+  var aoa2 = [
+    ["DETALLE POR OPCIÓN"],
+    [],
+    ["Opción","Tema Completo","Votos Recibidos","% del Total","Posición"]
+  ];
+  var sorted = [0,1,2].sort(function(a,b){ return serverVotes[b]-serverVotes[a]; });
+  sorted.forEach(function(i, pos){
+    var pct = total>0 ? Math.round(serverVotes[i]/total*100) : 0;
+    aoa2.push(["Opción "+(i+1), LABELS[i], serverVotes[i], pct+"%", "#"+(pos+1)+" lugar"]);
+  });
+  aoa2.push([]);
+  aoa2.push(["Total general","",total,"100%",""]);
+
+  var ws2 = XLSX.utils.aoa_to_sheet(aoa2);
+  ws2["!cols"] = [{wch:12},{wch:52},{wch:16},{wch:14},{wch:14}];
+  XLSX.utils.book_append_sheet(wb, ws2, "Detalle por Opción");
+
+  // ── Hojas 3-5: Una por opción ──
+  for (var j=0;j<3;j++){
+    var pctJ = total>0 ? Math.round(serverVotes[j]/total*100) : 0;
+    var aoaJ = [
+      ["OPCIÓN " + (j+1)],
+      [],
+      ["Tema:",             LABELS[j]],
+      ["Votos recibidos:",  serverVotes[j]],
+      ["% del total:",      pctJ+"%"],
+      ["Total general:",    total],
+      ["Fecha:",            now]
+    ];
+    var wsJ = XLSX.utils.aoa_to_sheet(aoaJ);
+    wsJ["!cols"] = [{wch:20},{wch:52}];
+    XLSX.utils.book_append_sheet(wb, wsJ, "Opción " + (j+1));
+  }
+
+  XLSX.writeFile(wb, "Resultados_Encuesta_JMBP_" + new Date().toISOString().slice(0,10) + ".xlsx");
+}
+</script>
+</body>
+</html>
